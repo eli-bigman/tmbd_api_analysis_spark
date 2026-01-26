@@ -1,0 +1,22 @@
+services:
+  spark-notebook:
+    image: quay.io/jupyter/all-spark-notebook:latest
+    container_name: tmdb_spark_notebook
+    ports:
+      - "8888:8888" # Jupyter Notebook
+      - "4040:4040" # Spark UI
+      - "4041:4041" # Spark UI (additional contexts)
+    volumes:
+      - ../data:/home/jovyan/work/data
+      - ../src:/home/jovyan/work/src
+      - ../notebooks:/home/jovyan/work/notebooks
+      - ../tests:/home/jovyan/work/tests
+      - ../config:/home/jovyan/work/config
+      - ../.env:/home/jovyan/work/.env
+      - ./requirements.txt:/tmp/requirements.txt
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "pip install --quiet -r /tmp/requirements.txt &&
+               start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
+    working_dir: /home/jovyan/work

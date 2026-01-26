@@ -1,0 +1,82 @@
+# Global Configuration for TMDB Movie Analysis Project
+
+# Logging Configuration
+logging:
+  version: 1
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  log_to_file: true
+  log_file: "logs/tmdb_analysis.log"
+  log_to_console: true
+  # Module-specific log levels (optional)
+  module_levels:
+    fetch: "INFO"
+    transform: "INFO"
+    analytics: "INFO"
+    validation: "INFO"
+
+# Paths
+paths:
+  raw_data: "data/raw/"
+  interim_data: "data/interim/"
+  processed_data: "data/processed/"
+  reports: "reports/"
+  figures: "reports/figures/"
+  logs: "logs/"
+
+# API Configuration
+api:
+  base_url: "https://api.themoviedb.org/3"
+  timeout: 30
+  rate_limit_delay: 0.25  # seconds between requests
+
+# Spark Configuration
+spark:
+  master: "local[*]"  # Use all available cores
+  app.name: "TMDB_Analysis"
+  driver.memory: "4g"
+  executor.memory: "4g"
+  sql.shuffle.partitions: 200
+  serializer: "org.apache.spark.serializer.KryoSerializer"
+
+
+
+
+
+# Features to extract
+features:
+  basic:
+    - id
+    - title
+    - original_title
+    - release_date
+    - budget
+    - revenue
+    - runtime
+    - vote_average
+    - vote_count
+    - popularity
+    - overview
+  
+  nested:
+    - genres
+    - production_companies
+    - production_countries
+    - spoken_languages
+    - keywords
+    - credits_crew
+    - credits_cast
+
+# Analysis Configuration
+analysis:
+  min_vote_count: 100  # minimum votes for inclusion
+  min_budget: 1000000  # minimum budget in USD
+  franchise_threshold: 3  # min movies to be considered a franchise
+  
+# Visualization
+visualization:
+  style: "seaborn"
+  palette: "husl"
+  figure_size: [12, 8]
+  dpi: 300
