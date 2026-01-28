@@ -50,8 +50,8 @@ build/
 *.egg-info/
 
 # md files
-!README.md
 *.md
-
+!README.md
+!reports/report.md
 
 /notebooks/data/raw/
