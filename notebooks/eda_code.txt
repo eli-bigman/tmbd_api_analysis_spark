@@ -1,0 +1,20 @@
+# ================================================================================
+# EXPLORATORY DATA ANALYSIS (EDA)
+# ================================================================================
+
+from src.analytics import SparkEDA
+
+# Initialize EDA analyzer
+eda = SparkEDA(spark=spark)
+
+# Run complete EDA pipeline
+eda.run_full_eda(cleaned_df)
+
+# OR run individual analyses as needed:
+# eda.dataset_overview(cleaned_df)
+# eda.missing_value_analysis(cleaned_df)
+# eda.statistical_summary(cleaned_df)
+# eda.plot_distributions(cleaned_df)
+# eda.categorical_analysis(cleaned_df)
+# eda.temporal_analysis(cleaned_df)
+# eda.correlation_analysis(cleaned_df)
