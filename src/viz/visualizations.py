@@ -12,6 +12,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Optional, Tuple
 import logging
+import warnings
+
+# Suppress FutureWarnings from seaborn and other libraries
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 logger = logging.getLogger(__name__)
 
