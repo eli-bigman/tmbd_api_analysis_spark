@@ -11,6 +11,7 @@ data/processed/*
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -51,3 +52,6 @@ build/
 # md files
 !README.md
 *.md
+
+
+/notebooks/data/raw/
