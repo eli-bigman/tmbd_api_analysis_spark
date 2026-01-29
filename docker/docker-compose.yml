@@ -18,5 +18,5 @@ services:
       - JUPYTER_ENABLE_LAB=yes
     command: >
       bash -c "pip install --quiet -r /tmp/requirements.txt &&
-               start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
+               start-notebook.sh --NotebookApp.token='1234' --NotebookApp.password='1234'"
     working_dir: /home/jovyan/work
