@@ -83,7 +83,7 @@ class SparkMovieAggregations:
         self,
         df: DataFrame,
         top_n: int = 10,
-        sort_by: str = 'total_revenue'
+        sort_by: str = 'total_revenue_musd'
     ) -> DataFrame:
         """
         Find the most successful movie franchises.
@@ -116,12 +116,13 @@ class SparkMovieAggregations:
             F.mean('vote_count').alias('mean_vote_count')
         )
         
-        # Add rank column
-        window_spec = Window.orderBy(F.col(sort_by).desc())
-        ranked = franchise_stats.withColumn('rank', F.row_number().over(window_spec))
+        # Optimize: Sort and Limit FIRST to avoid global window warning
+        df_sorted = franchise_stats.orderBy(F.col(sort_by).desc()).limit(top_n)
         
-        # Select top N
-        result = ranked.filter(F.col('rank') <= top_n).orderBy('rank')
+        # Add rank column to the limited set
+        # usage of Window over literal 1 is safe here because dataset is small (top_n)
+        window_spec = Window.orderBy(F.col(sort_by).desc())
+        result = df_sorted.withColumn('rank', F.row_number().over(window_spec))
         
         # Reorder columns for better display
         return result.select(
@@ -142,7 +143,7 @@ class SparkMovieAggregations:
         self,
         df: DataFrame,
         top_n: int = 10,
-        sort_by: str = 'total_revenue',
+        sort_by: str = 'total_revenue_musd',
         min_movies: int = 1
     ) -> DataFrame:
         """
@@ -180,12 +181,12 @@ class SparkMovieAggregations:
         # Filter by minimum movies
         filtered = director_stats.filter(F.col('movie_count') >= min_movies)
         
+        # Optimize: Sort and Limit FIRST
+        df_sorted = filtered.orderBy(F.col(sort_by).desc()).limit(top_n)
+        
         # Add rank column
         window_spec = Window.orderBy(F.col(sort_by).desc())
-        ranked = filtered.withColumn('rank', F.row_number().over(window_spec))
-        
-        # Select top N
-        result = ranked.filter(F.col('rank') <= top_n).orderBy('rank')
+        result = df_sorted.withColumn('rank', F.row_number().over(window_spec))
         
         # Reorder columns for better display
         return result.select(
