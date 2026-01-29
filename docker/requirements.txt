@@ -16,3 +16,7 @@ chispa>=0.9.0
 
 # Data formats
 pyarrow>=12.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-mock>=3.12.0
