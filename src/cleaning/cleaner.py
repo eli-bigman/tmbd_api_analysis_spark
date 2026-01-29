@@ -14,11 +14,6 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import DateType, DoubleType, IntegerType
 import logging
 
-from .udfs import (
-    extract_collection_name, extract_names_from_array, extract_keywords_from_struct,
-    extract_top_cast, get_cast_size, extract_director, get_crew_size, sort_pipe_separated
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -51,9 +46,7 @@ class SparkMovieDataCleaner:
         logger.info("Loading raw data...")
         logger.info(f"Raw data path: {raw_data_path}")
         
-        # Read JSON files with mult
-
-# multiiLine option for TMDB API format
+        # Read JSON files with multiline option for TMDB API format
         df = self.spark.read.option("multiLine", "true").json(f"{raw_data_path}/*.json")
         
         count = df.count()
@@ -89,7 +82,7 @@ class SparkMovieDataCleaner:
     
     def flatten_nested_columns(self, df: DataFrame) -> DataFrame:
         """
-        Flatten nested JSON columns into pipe-separated strings.
+        Flatten nested JSON columns into pipe-separated strings using native Spark functions.
         
         Extracts data from: belongs_to_collection, genres, production_countries,
         production_companies, spoken_languages, keywords
@@ -102,29 +95,42 @@ class SparkMovieDataCleaner:
         """
         logger.info("Flattening nested JSON columns...")
         
-        # Extract collection name
+        # Extract collection name: belongs_to_collection.name
         if 'belongs_to_collection' in df.columns:
-            df = df.withColumn('collection_name', extract_collection_name(F.col('belongs_to_collection')))
+            df = df.withColumn('collection_name', F.col('belongs_to_collection.name'))
         
+        # Helper to extract names from array of structs: transform array -> get names -> array_join
+        def extract_names(col_name):
+            return F.array_join(
+                F.transform(F.col(col_name), lambda x: x['name']), 
+                '|'
+            )
+
         # Extract genres
         if 'genres' in df.columns:
-            df = df.withColumn('genres', extract_names_from_array(F.col('genres')))
+            df = df.withColumn('genres', extract_names('genres'))
         
         # Extract production countries
         if 'production_countries' in df.columns:
-            df = df.withColumn('production_countries', extract_names_from_array(F.col('production_countries')))
+            df = df.withColumn('production_countries', extract_names('production_countries'))
         
         # Extract production companies
         if 'production_companies' in df.columns:
-            df = df.withColumn('production_companies', extract_names_from_array(F.col('production_companies')))
+            df = df.withColumn('production_companies', extract_names('production_companies'))
         
         # Extract spoken languages
         if 'spoken_languages' in df.columns:
-            df = df.withColumn('spoken_languages', extract_names_from_array(F.col('spoken_languages')))
+            df = df.withColumn('spoken_languages', extract_names('spoken_languages'))
         
-        # Extract keywords (note: keywords has different structure)
+        # Extract keywords (keywords.keywords is the array)
         if 'keywords' in df.columns:
-            df = df.withColumn('keywords', extract_keywords_from_struct(F.col('keywords')))
+            df = df.withColumn(
+                'keywords', 
+                F.array_join(
+                    F.transform(F.col('keywords.keywords'), lambda x: x['name']), 
+                    '|'
+                )
+            )
         
         logger.info("Nested columns flattened successfully")
         
@@ -218,7 +224,8 @@ class SparkMovieDataCleaner:
         # Filter by status (only keep 'Released' movies)
         if 'status' in df.columns:
             df = df.filter(F.col('status') == 'Released')
-            df = df.drop('status')
+            # status column kept during processing but dropped later if needed
+            df = df.drop('status') 
         
         final_count = df.count()
         rows_removed = initial_count - final_count
@@ -230,7 +237,7 @@ class SparkMovieDataCleaner:
     
     def engineer_features(self, df: DataFrame) -> DataFrame:
         """
-        Create new features from existing data.
+        Create new features from existing data using native Spark functions.
         
         Adds:
         - cast, cast_size, director, crew_size (from credits)
@@ -248,10 +255,30 @@ class SparkMovieDataCleaner:
         if 'credits' in df.columns:
             logger.info("Extracting cast and crew information from the 'credits' column.")
             
-            df = df.withColumn('cast', extract_top_cast(F.col('credits')))
-            df = df.withColumn('cast_size', get_cast_size(F.col('credits')))
-            df = df.withColumn('director', extract_director(F.col('credits')))
-            df = df.withColumn('crew_size', get_crew_size(F.col('credits')))
+            # Helper to access cast
+            cast_col = F.col('credits.cast')
+            crew_col = F.col('credits.crew')
+
+            # 1. Cast names (Top 5)
+            # Use slice to take top 5, then transform to get names
+            df = df.withColumn(
+                'cast', 
+                F.array_join(
+                    F.transform(F.slice(cast_col, 1, 5), lambda x: x['name']),
+                    '|'
+                )
+            )
+            
+            # 2. Cast size
+            df = df.withColumn('cast_size', F.size(cast_col))
+            
+            # 3. Director
+            # Filter crew array for Job='Director', take first element's name
+            directors = F.filter(crew_col, lambda x: x['job'] == 'Director')
+            df = df.withColumn('director', F.element_at(directors, 1)['name'])
+            
+            # 4. Crew size
+            df = df.withColumn('crew_size', F.size(crew_col))
             
             logger.info("Cast and crew information successfully extracted.")
         else:
@@ -280,6 +307,8 @@ class SparkMovieDataCleaner:
         """
         Sort genres alphabetically within each cell.
         
+        For native implementation, we can split, sort_array, and join back.
+        
         Args:
             df (DataFrame): Input Spark DataFrame
             
@@ -289,7 +318,14 @@ class SparkMovieDataCleaner:
         logger.info("Sorting genres alphabetically...")
         
         if 'genres' in df.columns:
-            df = df.withColumn('genres', sort_pipe_separated(F.col('genres')))
+             # Split by pipe, sort array, join back with pipe
+             df = df.withColumn(
+                 'genres', 
+                 F.array_join(
+                     F.sort_array(F.split(F.col('genres'), r'\|')), 
+                     '|'
+                 )
+             )
         
         logger.info("Genres sorted.")
         
