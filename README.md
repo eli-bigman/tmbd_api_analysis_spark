@@ -2,7 +2,7 @@
 
 A comprehensive movie analytics platform leveraging Apache Spark for large-scale data processing and analysis of TMDB (The Movie Database) data. This project demonstrates advanced data engineering and analytics techniques using PySpark, with a focus on scalability, performance, and insightful visualizations.
 
-## 📊 Project Overview
+## Project Overview
 
 This project performs in-depth analysis of movie data from TMDB, processing thousands of movies to extract meaningful insights about revenue, popularity, ratings, genres, franchises, and more. Built entirely with Apache Spark for distributed computing, it showcases best practices in big data processing and analytics.
 
@@ -14,9 +14,10 @@ This project performs in-depth analysis of movie data from TMDB, processing thou
 - **Rich Visualizations**: Interactive charts and graphs using Matplotlib and Seaborn
 - **Production-Ready**: Dockerized environment with Jupyter notebooks for exploration
 
-## 🎯 Features
+## Features
 
 ### 1. Data Collection & Processing
+
 - **TMDB API Integration**: Automated data fetching from TMDB API
 - **Data Cleaning Pipeline**: Robust PySpark-based cleaning with custom UDFs
 - **Schema Validation**: Type conversions and data quality checks
@@ -26,14 +27,14 @@ This project performs in-depth analysis of movie data from TMDB, processing thou
 
 The project calculates 13 comprehensive KPIs:
 
-| KPI Category | Metrics |
-|--------------|---------|
-| **Financial** | Top Revenue, Top Budget, Top Profit, Highest ROI |
-| **Popularity** | Most Popular, Most Voted |
-| **Quality** | Highest Rated, Best Value (Budget/Rating) |
-| **Franchise** | Top Franchise Revenue, Top Standalone Revenue |
-| **Director** | Top Director Revenue, Top Director Rating |
-| **Genre** | Top Genre by Revenue |
+| KPI Category   | Metrics                                          |
+| -------------- | ------------------------------------------------ |
+| **Financial**  | Top Revenue, Top Budget, Top Profit, Highest ROI |
+| **Popularity** | Most Popular, Most Voted                         |
+| **Quality**    | Highest Rated, Best Value (Budget/Rating)        |
+| **Franchise**  | Top Franchise Revenue, Top Standalone Revenue    |
+| **Director**   | Top Director Revenue, Top Director Rating        |
+| **Genre**      | Top Genre by Revenue                             |
 
 ### 3. Advanced Filtering
 
@@ -41,7 +42,7 @@ The project calculates 13 comprehensive KPIs:
 - **Cast filtering**: Search movies by actor names
 - **Director filtering**: Filter by director
 - **Complex queries**: Multi-criteria search capabilities
-- **Pre-built searches**: 
+- **Pre-built searches**:
   - Sci-Fi Action movies with specific actors
   - Director-specific genre combinations
 
@@ -62,7 +63,7 @@ Five comprehensive visualizations:
 4. **Yearly Box Office Trends**: Multi-metric time series analysis
 5. **Franchise vs Standalone**: Comparative bar charts across key metrics
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 tmbd_api_analysis_spark/
@@ -90,7 +91,7 @@ tmbd_api_analysis_spark/
 └── README.md                       # This file
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -100,18 +101,21 @@ tmbd_api_analysis_spark/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd tmbd_api_analysis_spark
    ```
 
 2. **Set up environment variables**
+
    ```bash
    # Create .env file in docker/ directory
    echo "TMDB_API_KEY=your_api_key_here" > docker/.env
    ```
 
 3. **Start the Docker environment**
+
    ```bash
    cd docker
    docker-compose up
@@ -131,7 +135,7 @@ tmbd_api_analysis_spark/
    - Calculate KPIs
    - Generate visualizations
 
-## 📈 Usage Examples
+## Usage Examples
 
 ### Calculating KPIs
 
@@ -146,7 +150,7 @@ top_revenue = kpi_calc.top_revenue_movies(cleaned_df, top_n=10)
 
 # Calculate highest ROI movies (with filters)
 high_roi = kpi_calc.rank_movies(
-    cleaned_df, 
+    cleaned_df,
     metric='roi',
     filter_condition=(F.col('budget_musd') > 1),
     top_n=10
@@ -195,18 +199,18 @@ fig1 = viz.plot_revenue_vs_budget(cleaned_df)
 fig2 = viz.plot_roi_by_genre(cleaned_df, top_n_genres=10)
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-| Component | Technology |
-|-----------|------------|
-| **Distributed Computing** | Apache Spark 3.5+ |
-| **Data Processing** | PySpark, Pandas |
-| **API Client** | requests (TMDB API) |
-| **Visualization** | Matplotlib, Seaborn |
-| **Environment** | Docker, Jupyter Lab |
-| **Base Image** | quay.io/jupyter/all-spark-notebook |
+| Component                 | Technology                         |
+| ------------------------- | ---------------------------------- |
+| **Distributed Computing** | Apache Spark 3.5+                  |
+| **Data Processing**       | PySpark, Pandas                    |
+| **API Client**            | requests (TMDB API)                |
+| **Visualization**         | Matplotlib, Seaborn                |
+| **Environment**           | Docker, Jupyter Lab                |
+| **Base Image**            | quay.io/jupyter/all-spark-notebook |
 
-## 📊 Key Insights & Analytics
+## Key Insights & Analytics
 
 ### Performance Metrics
 
@@ -223,7 +227,7 @@ fig2 = viz.plot_roi_by_genre(cleaned_df, top_n_genres=10)
 5. **Director Analytics**: Director-level performance aggregations
 6. **Genre Trends**: Genre-based revenue and ROI analysis
 
-## 🧪 Testing
+## Testing
 
 Run the test suite:
 
@@ -233,6 +237,7 @@ pytest tests/
 ```
 
 Test coverage includes:
+
 - Data fetching validation
 - Cleaning pipeline tests
 - KPI calculation accuracy
@@ -261,15 +266,15 @@ This project demonstrates:
 - **Visualization**: Hybrid Spark + Pandas approach for plotting
 - **Best Practices**: Modular code, testing, documentation, Docker deployment
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
-## 📄 License
+## License
 
 This project is for educational purposes. Movie data is provided by TMDB and subject to their terms of service.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **TMDB** for providing the extensive movie database API
 - **Apache Spark** community for the powerful distributed computing framework
@@ -277,6 +282,6 @@ This project is for educational purposes. Movie data is provided by TMDB and sub
 
 ---
 
-**Built with ❤️ using Apache Spark**
+**Built using Apache Spark**
 
-*For questions or feedback, please open an issue on GitHub.*
+_For questions or feedback, please open an issue on GitHub._
